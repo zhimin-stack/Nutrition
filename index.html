@@ -3,30 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>國立臺東大學 - 保健食品期末測驗</title>
+  <title>營養學綜合考題系統</title>
   
-  <!-- 僅載入 Tailwind CSS 處理排版，無其他依賴，確保秒開 -->
+  <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 min-h-screen text-slate-800 font-sans flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
   
-  <!-- App 顯示區塊 -->
-  <div id="app" class="w-full flex justify-center"></div>
+  <!-- 更換為更穩定的 cdnjs 來源 -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 m-0 p-0">
+  
+  <!-- 載入中的備用畫面 (如果 React 成功啟動，這裡會被自動覆蓋) -->
+  <div id="root">
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; font-family:sans-serif; color:#475569;">
+      <h2 style="font-size:1.5rem; font-weight:bold; margin-bottom:1rem; color:#2563eb;">系統載入中...</h2>
+      <p style="margin-bottom:0.5rem; font-weight:bold;">正在為您準備 240 題精選題庫</p>
+      <p style="font-size:0.875rem; color:#94a3b8;">如果畫面持續卡在此處超過 5 秒，請檢查網路連線或重新整理網頁。</p>
+    </div>
+  </div>
 
-  <script>
-    // SVG 圖示
-    const icons = {
-      book: `<svg class="text-indigo-600 w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
-      play: `<svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
-      check: `<svg class="w-6 h-6 text-emerald-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
-      x: `<svg class="w-6 h-6 text-red-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`,
-      chevron: `<svg class="w-5 h-5 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
-      rotate: `<svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`
-    };
+  <script type="text/babel">
+    // 檢查 React 是否成功載入，若失敗則顯示錯誤訊息
+    if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+      document.getElementById('root').innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;color:#ef4444;font-weight:bold;font-size:1.25rem;">❌ 載入失敗：無法連接至 React 伺服器，請確認網路狀態。</div>';
+    }
 
-    // 80題題庫資料
-    const SOURCE_QUESTIONS = [
-        [1, 2, "醣類(碳水化合物)每公克可提供人體多少大卡能量?", "2大卡", "3大卡", "4大卡", "9大卡"],
+    const { useState, useEffect } = React;
+
+    // === SVG 圖示元件 (純手工打造，避免外部圖庫載入失敗) ===
+    const BookOpen = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    );
+    const Target = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    );
+    const Shuffle = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+    );
+    const Award = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+    );
+    const CheckCircle2 = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+    );
+    const XCircle = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+    );
+    const ArrowRight = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    );
+    const RotateCcw = ({ size=24, className="" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    );
+
+    // === 完整 240 題題庫資料區塊 ===
+    const rawData = [
+      [1, 2, "醣類(碳水化合物)每公克可提供人體多少大卡能量?", "2大卡", "3大卡", "4大卡", "9大卡"],
       [2, 1, "典型的砂糖(蔗糖)是由哪兩種單醣所構成?", "葡萄糖與半乳糖", "葡萄糖與果糖", "果糖與半乳糖", "雙分子的葡萄糖"],
       [3, 0, "下列何者屬於醣類,但在人體內無法被消化分解,且具有整腸的效果?", "纖維質", "肝醣", "麥芽糖", "胺基酸"],
       [4, 3, "若碳水化合物攝取不足,身體會分解哪種營養素轉化為葡萄糖來供應熱量?", "維生素", "礦物質", "纖維質", "蛋白質"],
@@ -268,189 +302,295 @@
       [240, 1, "生命期營養學指出,人類在哪一個年齡階段能達到「巔峰骨量(Peak Bone Mass)」,因此在此之前補足鈣質與運動對預防老年骨質疏鬆最為關鍵?", "嬰幼兒期", "青春期至30歲左右", "40至50歲", "65歲以上"]
     ];
 
-    // 系統狀態變數
-    let appState = 'start'; // 'start', 'playing', 'result'
-    let questions = [];
-    let currentIndex = 0;
-    let score = 0;
-    let selectedOpt = null;
-    let isAnswered = false;
+    const rawQuestions = rawData.map(d => ({
+      id: d[0],
+      ans: d[1],
+      q: d[2],
+      opts: [d[3], d[4], d[5], d[6]]
+    }));
 
-    // 洗牌函數
-    function shuffleArray(array) {
-      let shuffled = [...array];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    }
+    // === 主程式 ===
+    function App() {
+      const [mode, setMode] = useState('menu');
+      const [quizConfig, setQuizConfig] = useState({ title: '', questions: [] });
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [score, setScore] = useState(0);
+      const [wrongAnswers, setWrongAnswers] = useState([]);
+      const [selectedOption, setSelectedOption] = useState(null);
+      const [isAnswered, setIsAnswered] = useState(false);
 
-    // 開始測驗
-    window.startQuiz = function() {
-      questions = shuffleArray(SOURCE_QUESTIONS);
-      currentIndex = 0;
-      score = 0;
-      selectedOpt = null;
-      isAnswered = false;
-      appState = 'playing';
-      render();
-    };
+      const startQuiz = (type) => {
+        let filtered = [];
+        let title = '';
+        const safeSlice = (start, end) => rawQuestions.filter(q => q.id >= start && q.id <= end);
 
-    // 選擇答案
-    window.handleOptionClick = function(idx) {
-      if (isAnswered) return;
-      selectedOpt = idx;
-      isAnswered = true;
-      if (idx === questions[currentIndex].ans) {
-        score++;
-      }
-      render();
-    };
-
-    // 下一題
-    window.nextQuestion = function() {
-      if (currentIndex + 1 < questions.length) {
-        currentIndex++;
-        selectedOpt = null;
-        isAnswered = false;
-      } else {
-        appState = 'result';
-      }
-      render();
-    };
-
-    // 畫面渲染函數
-    function render() {
-      const appDiv = document.getElementById('app');
-      let html = '';
-
-      if (appState === 'start') {
-        html = `
-          <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden text-center p-8 mt-10 border border-slate-100">
-            <div class="mx-auto bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mb-6">
-              ${icons.book}
-            </div>
-            <h1 class="text-3xl font-bold text-slate-800 mb-4 tracking-tight">國立臺東大學<br/>保健食品期末測驗</h1>
-            <p class="text-slate-500 mb-8 leading-relaxed">
-              本題庫共包含 80 題選擇題，每次測驗將為你隨機打亂題目順序。作答後會即時顯示正確答案，幫助你加深印象。
-            </p>
-            <button onclick="startQuiz()" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
-              ${icons.play}
-              開始刷題 (共80題)
-            </button>
-          </div>
-        `;
-      } 
-      else if (appState === 'playing') {
-        const q = questions[currentIndex];
-        const progressPercentage = ((currentIndex) / questions.length) * 100;
-        const optionLetters = ['A', 'B', 'C', 'D'];
-
-        let optionsHtml = '';
-        q.opts.forEach((opt, idx) => {
-          const isCorrectAns = idx === q.ans;
-          const isSelected = idx === selectedOpt;
-          
-          let btnClass = "w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 flex items-center justify-between ";
-          let iconHtml = '';
-
-          if (!isAnswered) {
-            btnClass += "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 text-slate-700 cursor-pointer";
-          } else {
-            if (isCorrectAns) {
-              btnClass += "border-emerald-500 bg-emerald-50 text-emerald-800 cursor-default";
-              iconHtml = icons.check;
-            } else if (isSelected) {
-              btnClass += "border-red-400 bg-red-50 text-red-800 cursor-default";
-              iconHtml = icons.x;
-            } else {
-              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-60 cursor-default";
-            }
-          }
-
-          optionsHtml += `
-            <button ${isAnswered ? 'disabled' : ''} onclick="handleOptionClick(${idx})" class="${btnClass}">
-              <div class="flex items-center">
-                <span class="font-bold mr-4 w-6 text-center">${optionLetters[idx]}</span>
-                <span class="text-base sm:text-lg">${opt}</span>
-              </div>
-              ${iconHtml}
-            </button>
-          `;
-        });
-
-        let nextBtnHtml = '';
-        if (isAnswered) {
-          const btnText = (currentIndex + 1 === questions.length) ? '查看結果' : '下一題';
-          nextBtnHtml = `
-            <button onclick="nextQuestion()" class="inline-flex items-center px-6 py-3 text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all cursor-pointer">
-              ${btnText}
-              ${icons.chevron}
-            </button>
-          `;
+        switch(type) {
+          case '1-80':
+            filtered = safeSlice(1, 80);
+            title = '順序刷題: 第 1 - 80 題 (醣類、脂質與蛋白質基礎)';
+            break;
+          case '81-160':
+            filtered = safeSlice(81, 160);
+            title = '順序刷題: 第 81 - 160 題 (維生素、臨床營養與加工)';
+            break;
+          case '161-240':
+            filtered = safeSlice(161, 240);
+            title = '順序刷題: 第 161 - 240 題 (礦物質、生命期營養學)';
+            break;
+          case 'rand80':
+            filtered = [...rawQuestions].sort(() => 0.5 - Math.random()).slice(0, 80);
+            title = '隨機抽題: 80 題 (隨機綜合精華)';
+            break;
+          case 'rand240':
+            filtered = [...rawQuestions].sort(() => 0.5 - Math.random());
+            title = '綜合隨機: 240 題 (完美極限考驗)';
+            break;
+          default:
+            break;
         }
 
-        html = `
-          <div class="max-w-2xl w-full">
-            <div class="flex justify-between items-center mb-6 px-2">
-              <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Question ${currentIndex + 1} of ${questions.length}
-              </div>
-              <div class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full">
-                得分: ${score}
-              </div>
-            </div>
+        setQuizConfig({ title, questions: filtered });
+        setCurrentIndex(0);
+        setScore(0);
+        setWrongAnswers([]);
+        setSelectedOption(null);
+        setIsAnswered(false);
+        setMode('quiz');
+      };
 
-            <div class="w-full bg-slate-200 rounded-full h-2 mb-8">
-              <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: ${progressPercentage}%"></div>
-            </div>
+      const handleOptionClick = (idx) => {
+        if (isAnswered) return;
+        
+        setSelectedOption(idx);
+        setIsAnswered(true);
 
-            <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-slate-100 mb-6">
-              <h2 class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug mb-8">
-                ${q.q}
-              </h2>
-              <div class="space-y-3">
-                ${optionsHtml}
+        const currentQ = quizConfig.questions[currentIndex];
+        if (idx === currentQ.ans) {
+          setScore(prev => prev + 1);
+        } else {
+          setWrongAnswers(prev => [...prev, { q: currentQ, selected: idx }]);
+        }
+      };
+
+      const handleNextQuestion = () => {
+        if (currentIndex + 1 < quizConfig.questions.length) {
+          setCurrentIndex(prev => prev + 1);
+          setSelectedOption(null);
+          setIsAnswered(false);
+        } else {
+          setMode('result');
+        }
+      };
+
+      if (mode === 'menu') {
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/50 flex items-center justify-center p-4 font-sans antialiased">
+            <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-8 border border-slate-100">
+              <div className="text-center mb-8">
+                <div className="bg-gradient-to-tr from-blue-500 to-indigo-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md shadow-blue-500/20 transform hover:scale-105 transition-transform duration-300">
+                  <BookOpen size={32} />
+                </div>
+                <h1 className="text-2xl font-black text-slate-800 tracking-tight">營養學綜合考題</h1>
+                <p className="text-slate-500 mt-2 text-sm font-medium">已載入完整 240 題題庫 • 支援智能錯題複習</p>
               </div>
-            </div>
-
-            <div class="flex justify-end h-14">
-              ${nextBtnHtml}
+              
+              <div className="space-y-3">
+                <div className="text-xs font-bold text-slate-400 tracking-wider mb-2 uppercase px-1">循序漸進練習區</div>
+                <button onClick={() => startQuiz('1-80')} className="w-full flex items-center justify-between p-4 rounded-2xl text-blue-700 bg-blue-50 hover:bg-blue-100/80 transition-all border border-blue-100/60 font-semibold shadow-sm hover:shadow-md hover:translate-x-1 duration-200">
+                  <span className="flex items-center"><Target className="mr-3 text-blue-500" size={20} /> 第 1 - 80 題</span>
+                  <ArrowRight size={18} className="opacity-60" />
+                </button>
+                <button onClick={() => startQuiz('81-160')} className="w-full flex items-center justify-between p-4 rounded-2xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100/80 transition-all border border-indigo-100/60 font-semibold shadow-sm hover:shadow-md hover:translate-x-1 duration-200">
+                  <span className="flex items-center"><Target className="mr-3 text-indigo-500" size={20} /> 第 81 - 160 題</span>
+                  <ArrowRight size={18} className="opacity-60" />
+                </button>
+                <button onClick={() => startQuiz('161-240')} className="w-full flex items-center justify-between p-4 rounded-2xl text-purple-700 bg-purple-50 hover:bg-purple-100/80 transition-all border border-purple-100/60 font-semibold shadow-sm hover:shadow-md hover:translate-x-1 duration-200">
+                  <span className="flex items-center"><Target className="mr-3 text-purple-500" size={20} /> 第 161 - 240 題</span>
+                  <ArrowRight size={18} className="opacity-60" />
+                </button>
+                
+                <div className="my-4 border-t border-slate-100/80"></div>
+                
+                <div className="text-xs font-bold text-slate-400 tracking-wider mb-2 uppercase px-1">模擬實戰考驗區</div>
+                <button onClick={() => startQuiz('rand80')} className="w-full flex items-center justify-between p-4 rounded-2xl text-orange-700 bg-orange-50 hover:bg-orange-100/80 transition-all border border-orange-100/60 font-semibold shadow-sm hover:shadow-md hover:translate-x-1 duration-200">
+                  <span className="flex items-center"><Shuffle className="mr-3 text-orange-500" size={20} /> 隨機抽題 (80題)</span>
+                  <ArrowRight size={18} className="opacity-60" />
+                </button>
+                <button onClick={() => startQuiz('rand240')} className="w-full flex items-center justify-between p-4 rounded-2xl text-rose-700 bg-rose-50 hover:bg-rose-100/80 transition-all border border-rose-100/60 font-semibold shadow-sm hover:shadow-md hover:translate-x-1 duration-200">
+                  <span className="flex items-center"><Shuffle className="mr-3 text-rose-500" size={20} /> 綜合隨機 (240題)</span>
+                  <ArrowRight size={18} className="opacity-60" />
+                </button>
+              </div>
             </div>
           </div>
-        `;
-      } 
-      else if (appState === 'result') {
-        const finalScore = Math.round((score / questions.length) * 100);
-        html = `
-          <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden text-center p-8 mt-10 border border-slate-100">
-            <div class="mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6 bg-emerald-100">
-               ${icons.check}
-            </div>
-            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">測驗完成！</h2>
-            <p class="text-slate-500 text-lg mb-8">辛苦了，來看看你的成績吧！</p>
-            
-            <div class="bg-slate-50 rounded-2xl p-8 mb-8 border border-slate-100">
-              <div class="text-6xl font-black text-indigo-600 mb-2">
-                ${finalScore}<span class="text-3xl text-slate-400 font-bold ml-1">分</span>
-              </div>
-              <p class="text-slate-500 font-medium">答對了 ${score} / ${questions.length} 題</p>
-            </div>
-
-            <button onclick="startQuiz()" class="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors cursor-pointer">
-              ${icons.rotate}
-              重新隨機測驗
-            </button>
-          </div>
-        `;
+        );
       }
 
-      appDiv.innerHTML = html;
+      if (mode === 'quiz') {
+        const currentQ = quizConfig.questions[currentIndex];
+        const progress = ((currentIndex + 1) / quizConfig.questions.length) * 100;
+
+        return (
+          <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased">
+            <div className="bg-white/80 backdrop-blur-md shadow-sm px-4 py-3 sticky top-0 z-10 border-b border-slate-200/60">
+              <div className="max-w-3xl mx-auto flex justify-between items-center">
+                <button onClick={() => setMode('menu')} className="text-slate-600 hover:text-slate-900 text-sm font-bold flex items-center bg-slate-100/80 active:scale-95 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl transition-all">
+                  <RotateCcw size={16} className="mr-1" /> 退出
+                </button>
+                <span className="font-extrabold text-slate-700 hidden sm:block max-w-[40%] truncate">{quizConfig.title}</span>
+                <span className="font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm flex items-center shadow-sm">
+                  <Award size={16} className="mr-1 text-emerald-600" /> 得分: {score}
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full h-1.5 bg-slate-100">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-300 ease-out shadow-inner" style={{width: `${progress}%`}}></div>
+            </div>
+
+            <div className="flex-1 w-full max-w-3xl mx-auto p-5 md:p-8 flex flex-col pb-24">
+              <div className="mb-6">
+                <div className="text-xs font-black text-blue-600 mb-3 tracking-wider bg-blue-50/80 border border-blue-100/60 inline-block px-3 py-1 rounded-full">
+                  QUESTION {currentIndex + 1} / {quizConfig.questions.length}
+                </div>
+                <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 leading-relaxed">
+                  <span className="text-slate-400 font-mono mr-2">{currentQ.id}.</span>{currentQ.q}
+                </h2>
+              </div>
+
+              <div className="space-y-3 mt-2">
+                {currentQ.opts.map((opt, idx) => {
+                  const isCorrectAns = idx === currentQ.ans;
+                  const isSelectedAns = idx === selectedOption;
+                  
+                  let btnClass = "w-full text-left p-4 md:p-5 rounded-2xl border-2 font-semibold flex items-center transition-all duration-200 ";
+                  
+                  if (!isAnswered) {
+                    btnClass += "border-slate-200/80 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-sm cursor-pointer active:scale-[0.99]";
+                  } else {
+                    btnClass += " cursor-default";
+                    if (isCorrectAns) {
+                      btnClass += " border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm transform scale-[1.01]"; 
+                    } else if (isSelectedAns) {
+                      btnClass += " border-rose-500 bg-rose-50 text-rose-800"; 
+                    } else {
+                      btnClass += " border-slate-100 bg-slate-100/30 text-slate-400 opacity-60";
+                    }
+                  }
+
+                  return (
+                    <button 
+                      key={idx} 
+                      onClick={() => handleOptionClick(idx)} 
+                      className={btnClass} 
+                      disabled={isAnswered}
+                    >
+                      <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full mr-4 text-sm font-black transition-colors duration-250
+                        ${!isAnswered ? 'bg-slate-100 text-slate-600 group-hover:bg-blue-100' : 
+                          isCorrectAns ? 'bg-emerald-200 text-emerald-800' : 
+                          isSelectedAns ? 'bg-rose-200 text-rose-800' : 'bg-slate-100 text-slate-400'}`}>
+                        {['A', 'B', 'C', 'D'][idx]}
+                      </div>
+                      <span className="leading-snug flex-1 font-medium text-[0.95rem] md:text-base">{opt}</span>
+                      
+                      {isAnswered && isCorrectAns && <CheckCircle2 size={24} className="text-emerald-500 ml-2 flex-shrink-0" />}
+                      {isAnswered && isSelectedAns && !isCorrectAns && <XCircle size={24} className="text-rose-500 ml-2 flex-shrink-0" />}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {isAnswered && (
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={handleNextQuestion}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold flex items-center transition shadow-lg hover:shadow-xl transform active:scale-95 hover:-translate-y-0.5 duration-150"
+                  >
+                    {currentIndex + 1 < quizConfig.questions.length ? (
+                      <>下一題 <ArrowRight size={20} className="ml-2" /></>
+                    ) : (
+                      <>查看成績 <Award size={20} className="ml-2" /></>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      if (mode === 'result') {
+        const accuracy = Math.round((score / quizConfig.questions.length) * 100) || 0;
+        
+        return (
+          <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-10 font-sans antialiased">
+            <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl p-6 md:p-10 border border-slate-100">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-black text-slate-800 mb-2">測驗完成！</h2>
+                <p className="text-slate-500 font-bold">{quizConfig.title}</p>
+                
+                <div className="mt-8 mb-6 flex justify-center">
+                  <div className="relative w-40 h-40 bg-gradient-to-tr from-blue-50/50 to-indigo-50 rounded-full flex flex-col items-center justify-center border-8 border-blue-50 shadow-inner">
+                    <span className="text-5xl font-black text-blue-600">{score}</span>
+                    <span className="text-sm font-bold text-blue-400 mt-1">/ {quizConfig.questions.length} 題</span>
+                  </div>
+                </div>
+                <div className="inline-block bg-slate-50 px-6 py-2.5 rounded-full border border-slate-100">
+                  <p className="text-base font-bold text-slate-700">總答對率: <span className={`font-black ${accuracy >= 80 ? "text-emerald-600" : accuracy >= 60 ? "text-orange-500" : "text-rose-500"}`}>{accuracy}%</span></p>
+                </div>
+              </div>
+
+              {wrongAnswers.length > 0 ? (
+                <div className="mb-8">
+                  <div className="flex items-center justify-center mb-6 pb-4 border-b border-slate-100">
+                    <span className="text-xl mr-2">📝</span>
+                    <h3 className="text-lg font-black text-slate-800">錯題總複習 ({wrongAnswers.length} 題)</h3>
+                  </div>
+                  <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                    {wrongAnswers.map((item, i) => (
+                      <div key={i} className="bg-slate-50/40 p-5 md:p-6 rounded-2xl border border-slate-200/60">
+                        <p className="font-extrabold text-slate-800 mb-4 leading-relaxed">
+                          <span className="text-rose-500 font-mono mr-1.5">[ 題目 {item.q.id} ]</span> {item.q.q}
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex items-start text-sm text-rose-800 bg-rose-50/80 px-4 py-3 rounded-xl font-semibold border border-rose-100">
+                            <XCircle size={18} className="mr-2 mt-0.5 flex-shrink-0 text-rose-500" />
+                            <span>您的答案: {item.q.opts[item.selected]}</span>
+                          </div>
+                          <div className="flex items-start text-sm text-emerald-800 bg-emerald-50/80 px-4 py-3 rounded-xl font-extrabold border border-emerald-100 shadow-sm">
+                            <CheckCircle2 size={18} className="mr-2 mt-0.5 flex-shrink-0 text-emerald-600" />
+                            <span>正確答案: {item.q.opts[item.q.ans]}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center mb-8 p-8 bg-emerald-50/50 rounded-3xl border border-emerald-100">
+                  <div className="text-5xl mb-4 flex justify-center">
+                    <Award className="text-emerald-500 animate-bounce" size={64} />
+                  </div>
+                  <h3 className="text-2xl font-black text-emerald-800">太棒了！全數答對！</h3>
+                  <p className="text-emerald-600 mt-2 font-bold">您已經完美掌握這個範圍的所有學理知識！</p>
+                </div>
+              )}
+
+              <button onClick={() => setMode('menu')} className="w-full flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-4 px-4 rounded-2xl transition shadow-lg text-lg tracking-wide group active:scale-[0.99] duration-150">
+                <RotateCcw className="mr-2 group-hover:-rotate-180 transition-transform duration-500" size={20} />
+                返回主選單
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return null;
     }
 
-    // 初始渲染
-    render();
+    // 啟動 React App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
