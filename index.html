@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>食品營養刷題 App</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
-        h3 { color: #333; margin-bottom: 20px; }
-        .option-btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #007BFF; border-radius: 8px; background: white; color: #007BFF; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .option-btn:hover { background: #007BFF; color: white; }
-        #feedback { margin-top: 15px; font-weight: bold; height: 20px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>國立臺東大學 - 保健食品期末測驗</title>
+  
+  <!-- 僅載入 Tailwind CSS 處理排版，無其他依賴，確保秒開 -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
+  
+  <!-- App 顯示區塊 -->
+  <div id="app" class="w-full flex justify-center"></div>
 
-<div class="card">
-    <div id="question-text"><h3>題目載入中...</h3></div>
-    <div id="options-container">
-        <!-- 按鈕會透過 JavaScript 自動產生在這裡 -->
-    </div>
-    <div id="feedback"></div>
-</div>
+  <script>
+    // SVG 圖示
+    const icons = {
+      book: `<svg class="text-indigo-600 w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+      play: `<svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+      check: `<svg class="w-6 h-6 text-emerald-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
+      x: `<svg class="w-6 h-6 text-red-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`,
+      chevron: `<svg class="w-5 h-5 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
+      rotate: `<svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`
+    };
 
-<script>
-    // 1. 準備題庫（先放前 3 題測試，格式：[題號, 正確索引, 題目, 選項A, 選項B, 選項C, 選項D]）
-    const questions = [
-      [1, 2, "醣類(碳水化合物)每公克可提供人體多少大卡能量?", "2大卡", "3大卡", "4大卡", "9大卡"],
+    // 80題題庫資料
+    const SOURCE_QUESTIONS = [
+        [1, 2, "醣類(碳水化合物)每公克可提供人體多少大卡能量?", "2大卡", "3大卡", "4大卡", "9大卡"],
       [2, 1, "典型的砂糖(蔗糖)是由哪兩種單醣所構成?", "葡萄糖與半乳糖", "葡萄糖與果糖", "果糖與半乳糖", "雙分子的葡萄糖"],
       [3, 0, "下列何者屬於醣類,但在人體內無法被消化分解,且具有整腸的效果?", "纖維質", "肝醣", "麥芽糖", "胺基酸"],
       [4, 3, "若碳水化合物攝取不足,身體會分解哪種營養素轉化為葡萄糖來供應熱量?", "維生素", "礦物質", "纖維質", "蛋白質"],
@@ -267,64 +267,191 @@
       [239, 1, "當人體攝取過量的「鈉」時,腎臟會透過排出尿液來排除多餘的鈉,但此過程同時會帶走哪一種重要的骨骼礦物質,增加流失風險?", "鐵", "鈣", "銅", "硒"],
       [240, 1, "生命期營養學指出,人類在哪一個年齡階段能達到「巔峰骨量(Peak Bone Mass)」,因此在此之前補足鈣質與運動對預防老年骨質疏鬆最為關鍵?", "嬰幼兒期", "青春期至30歲左右", "40至50歲", "65歲以上"]
     ];
-    ];
 
-    let currentIndex = 0; // 目前顯示第幾題
+    // 系統狀態變數
+    let appState = 'start'; // 'start', 'playing', 'result'
+    let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let selectedOpt = null;
+    let isAnswered = false;
 
-    // 2. 顯示題目的函數
-    function loadQuestion() {
-        // 取得目前的題目陣列
-        const currentQ = questions[currentIndex];
-        
-        // 顯示題目 (索引 2 是題目文字)
-        document.getElementById("question-text").innerHTML = `<h3>${currentQ[2]}</h3>`;
-        
-        // 清空並產生四個選項按鈕
-        const optionsContainer = document.getElementById("options-container");
-        optionsContainer.innerHTML = ""; // 清空舊按鈕
-        
-        // 索引 3, 4, 5, 6 是四個選項，我們對應到按鈕的 0, 1, 2, 3
-        for (let i = 0; i < 4; i++) {
-            let btn = document.createElement("button");
-            btn.className = "option-btn";
-            btn.innerText = currentQ[i + 3]; // 抓取選項文字
-            
-            // 設定點擊事件：點下去後檢查答案
-            btn.onclick = function() {
-                checkAnswer(i, currentQ[1]); 
-            };
-            optionsContainer.appendChild(btn);
-        }
-        document.getElementById("feedback").innerText = ""; // 清空回饋文字
+    // 洗牌函數
+    function shuffleArray(array) {
+      let shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
     }
 
-    // 3. 檢查答案的函數
-    function checkAnswer(selectedIndex, correctIndex) {
-        const feedbackDiv = document.getElementById("feedback");
-        if (selectedIndex === correctIndex) {
-            feedbackDiv.style.color = "green";
-            feedbackDiv.innerText = "答對了！🎉 1 秒後進入下一題...";
-            
-            // 答對的話，1秒後換下一題
-            setTimeout(() => {
-                currentIndex++;
-                if (currentIndex < questions.length) {
-                    loadQuestion();
-                } else {
-                    document.getElementById("question-text").innerHTML = "<h3>太棒了！測驗完成！</h3>";
-                    document.getElementById("options-container").innerHTML = "";
-                    feedbackDiv.innerText = "";
-                }
-            }, 1000);
-        } else {
-            feedbackDiv.style.color = "red";
-            feedbackDiv.innerText = "答錯囉，再試一次！❌";
+    // 開始測驗
+    window.startQuiz = function() {
+      questions = shuffleArray(SOURCE_QUESTIONS);
+      currentIndex = 0;
+      score = 0;
+      selectedOpt = null;
+      isAnswered = false;
+      appState = 'playing';
+      render();
+    };
+
+    // 選擇答案
+    window.handleOptionClick = function(idx) {
+      if (isAnswered) return;
+      selectedOpt = idx;
+      isAnswered = true;
+      if (idx === questions[currentIndex].ans) {
+        score++;
+      }
+      render();
+    };
+
+    // 下一題
+    window.nextQuestion = function() {
+      if (currentIndex + 1 < questions.length) {
+        currentIndex++;
+        selectedOpt = null;
+        isAnswered = false;
+      } else {
+        appState = 'result';
+      }
+      render();
+    };
+
+    // 畫面渲染函數
+    function render() {
+      const appDiv = document.getElementById('app');
+      let html = '';
+
+      if (appState === 'start') {
+        html = `
+          <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden text-center p-8 mt-10 border border-slate-100">
+            <div class="mx-auto bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mb-6">
+              ${icons.book}
+            </div>
+            <h1 class="text-3xl font-bold text-slate-800 mb-4 tracking-tight">國立臺東大學<br/>保健食品期末測驗</h1>
+            <p class="text-slate-500 mb-8 leading-relaxed">
+              本題庫共包含 80 題選擇題，每次測驗將為你隨機打亂題目順序。作答後會即時顯示正確答案，幫助你加深印象。
+            </p>
+            <button onclick="startQuiz()" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer">
+              ${icons.play}
+              開始刷題 (共80題)
+            </button>
+          </div>
+        `;
+      } 
+      else if (appState === 'playing') {
+        const q = questions[currentIndex];
+        const progressPercentage = ((currentIndex) / questions.length) * 100;
+        const optionLetters = ['A', 'B', 'C', 'D'];
+
+        let optionsHtml = '';
+        q.opts.forEach((opt, idx) => {
+          const isCorrectAns = idx === q.ans;
+          const isSelected = idx === selectedOpt;
+          
+          let btnClass = "w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 flex items-center justify-between ";
+          let iconHtml = '';
+
+          if (!isAnswered) {
+            btnClass += "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 text-slate-700 cursor-pointer";
+          } else {
+            if (isCorrectAns) {
+              btnClass += "border-emerald-500 bg-emerald-50 text-emerald-800 cursor-default";
+              iconHtml = icons.check;
+            } else if (isSelected) {
+              btnClass += "border-red-400 bg-red-50 text-red-800 cursor-default";
+              iconHtml = icons.x;
+            } else {
+              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-60 cursor-default";
+            }
+          }
+
+          optionsHtml += `
+            <button ${isAnswered ? 'disabled' : ''} onclick="handleOptionClick(${idx})" class="${btnClass}">
+              <div class="flex items-center">
+                <span class="font-bold mr-4 w-6 text-center">${optionLetters[idx]}</span>
+                <span class="text-base sm:text-lg">${opt}</span>
+              </div>
+              ${iconHtml}
+            </button>
+          `;
+        });
+
+        let nextBtnHtml = '';
+        if (isAnswered) {
+          const btnText = (currentIndex + 1 === questions.length) ? '查看結果' : '下一題';
+          nextBtnHtml = `
+            <button onclick="nextQuestion()" class="inline-flex items-center px-6 py-3 text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all cursor-pointer">
+              ${btnText}
+              ${icons.chevron}
+            </button>
+          `;
         }
+
+        html = `
+          <div class="max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-6 px-2">
+              <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                Question ${currentIndex + 1} of ${questions.length}
+              </div>
+              <div class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full">
+                得分: ${score}
+              </div>
+            </div>
+
+            <div class="w-full bg-slate-200 rounded-full h-2 mb-8">
+              <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: ${progressPercentage}%"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-slate-100 mb-6">
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug mb-8">
+                ${q.q}
+              </h2>
+              <div class="space-y-3">
+                ${optionsHtml}
+              </div>
+            </div>
+
+            <div class="flex justify-end h-14">
+              ${nextBtnHtml}
+            </div>
+          </div>
+        `;
+      } 
+      else if (appState === 'result') {
+        const finalScore = Math.round((score / questions.length) * 100);
+        html = `
+          <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden text-center p-8 mt-10 border border-slate-100">
+            <div class="mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6 bg-emerald-100">
+               ${icons.check}
+            </div>
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">測驗完成！</h2>
+            <p class="text-slate-500 text-lg mb-8">辛苦了，來看看你的成績吧！</p>
+            
+            <div class="bg-slate-50 rounded-2xl p-8 mb-8 border border-slate-100">
+              <div class="text-6xl font-black text-indigo-600 mb-2">
+                ${finalScore}<span class="text-3xl text-slate-400 font-bold ml-1">分</span>
+              </div>
+              <p class="text-slate-500 font-medium">答對了 ${score} / ${questions.length} 題</p>
+            </div>
+
+            <button onclick="startQuiz()" class="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors cursor-pointer">
+              ${icons.rotate}
+              重新隨機測驗
+            </button>
+          </div>
+        `;
+      }
+
+      appDiv.innerHTML = html;
     }
 
-    // 4. 網頁載入後，立刻啟動第一題
-    loadQuestion();
-</script>
-
+    // 初始渲染
+    render();
+  </script>
 </body>
 </html>
+
